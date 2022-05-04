@@ -54,18 +54,16 @@ local working_dir_writable_style="${bold_green}"
 local working_dir_readonly_style="${bold_red}"
 
 function bs_git_current_repo {
-    local repo
-    repo=$(basename `git rev-parse --show-toplevel`)
-    echo ${repo}
+    local repo=$(git rev-parse --show-toplevel 2>/dev/null)
+    echo ${${repo}:t}
 }
 
 function bs_git_inside_repo {
-    local inside_work_tree="$(git rev-parse --is-inside-work-tree 2>/dev/null)"
-    echo ${inside_work_tree}
+    git rev-parse --is-inside-work-tree &> /dev/null
 }
 
 function bs_git_change_flags {
-    if [[ "$(bs_git_inside_repo)" == "true" ]]; then
+    if bs_git_inside_repo ; then
         local prompt_status=""
         local git_added=0
         local git_modified=0
@@ -128,7 +126,7 @@ function bskinner_precmd {
     local main_prompt="${user}@${machine}${marker} "
 
     local vcs_status
-    if [[ "$(bs_git_inside_repo)" == "true" ]]; then
+    if bs_git_inside_repo ; then
         # We are inside a git working tree!
         vcs_status="${blue}git:${reset}${bold_blue}$(bs_git_current_repo)${reset} "
         vcs_status+="< ${bold_cyan}$(git_current_branch)${reset}:${yellow}$(git_prompt_short_sha)${reset} > "
